@@ -159,7 +159,8 @@ def train(args):
         batch_size=batch_size,
     )
 
-    checkpoint = ModelCheckpoint('./history/'+args.basename+'/modeltmp_'+args.basename+'.model',
+    checkpoint = ModelCheckpoint(
+                './history/'+args.basename+'/modeltmp_'+args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)+'.model',
                 monitor='val_loss',
                 verbose=0,
                 save_best_only=False,
@@ -233,7 +234,7 @@ def train(args):
             callbacks = callbacks
             )
 
-    model.save(args.output_model_path+"_"+str(args.nb_epoch)+"_"+"_"+str(args.batch_size)+"_"+'.model')
+    model.save(args.output_model_path+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)+"_"+'.model')
 
     if args.plot:
         plot_training(history_ft)
@@ -278,6 +279,6 @@ if __name__ == "__main__":
 
     if (not os.path.exists(args.output_model_path+'/'+args.basename)):
         os.makedirs(args.output_model_path+'/'+args.basename)
-        args.output_model_path+='/'+args.basename+'/'+args.basename
+    args.output_model_path+='/'+args.basename+'/'+args.basename
 
     train(args)
