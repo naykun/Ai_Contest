@@ -35,3 +35,5 @@ tmp
 checkpoint
 *.xls
 *.xlsx
+
+.vscode
