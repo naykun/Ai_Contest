@@ -160,7 +160,7 @@ def train(args):
     )
 
     checkpoint = ModelCheckpoint(
-                './history/'+args.basename+'/modeltmp_'+args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)+'.model',
+                args.output_model_path+'_modeltmp'+'.model',
                 monitor='val_loss',
                 verbose=0,
                 save_best_only=False,
@@ -194,7 +194,7 @@ def train(args):
                               patience=5, min_lr=0.001)
 
     callbacks = [checkpoint, learnrt,reduce_lr,
-                 TensorBoard(log_dir='./TB_logdir/'+args.basename+'/', write_images=False)]
+                 TensorBoard(log_dir='./TB_logdir/'+args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)+'/', write_images=False)]
 
 
     # setup model
@@ -234,7 +234,7 @@ def train(args):
             callbacks = callbacks
             )
 
-    model.save(args.output_model_path+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)+"_"+'.model')
+    model.save(args.output_model_path+'.model')
 
     if args.plot:
         plot_training(history_ft)
@@ -277,8 +277,9 @@ if __name__ == "__main__":
         print("directories do not exist")
         sys.exit(1)
 
-    if (not os.path.exists(args.output_model_path+'/'+args.basename)):
-        os.makedirs(args.output_model_path+'/'+args.basename)
-    args.output_model_path+='/'+args.basename+'/'+args.basename
+    args.output_model_path+='/'+args.basename+'/'+args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)
+
+    if (not os.path.exists(args.output_model_path)):
+        os.makedirs(args.output_model_path)
 
     train(args)
