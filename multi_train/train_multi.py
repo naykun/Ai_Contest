@@ -282,5 +282,5 @@ if __name__ == "__main__":
     if (not os.path.exists(args.output_model_path)):
         os.makedirs(args.output_model_path)
 
-    args.output_model_path+=args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)
+    args.output_model_path+='/'+args.basename+"_"+str(args.nb_epoch)+"_"+str(args.batch_size)
     train(args)
