@@ -62,7 +62,8 @@ base_model_size = {
     "InceptionV3":(299, 299),
     "DenseNet201":(224, 224),
     "Resnet50":(224, 224),
-    "InceptionResNetV2":(299,299)
+    "InceptionResNetV2":(299,299),
+    "NASNetLarge":(224,224)
 }
 
 

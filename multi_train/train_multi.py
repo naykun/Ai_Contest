@@ -87,14 +87,16 @@ base_model_funcs = {
     "InceptionV3":app.InceptionV3,
     "DenseNet201":app.DenseNet201,
     "Resnet50":app.ResNet50,
-    "InceptionResNetV2":app.InceptionResNetV2
+    "InceptionResNetV2":app.InceptionResNetV2,
+    "NASNetLarge":app.NASNetLarge
 }
 base_model_preprocess = {
     "Xception":app.xception.preprocess_input,
     "InceptionV3":app.inception_v3.preprocess_input,
     "DenseNet201":app.densenet.preprocess_input,
     "Resnet50":app.resnet50.preprocess_input,
-    "InceptionResNetV2":app.inception_resnet_v2.preprocess_input
+    "InceptionResNetV2":app.inception_resnet_v2.preprocess_input,
+    "NASNetLarge":app.nasnet.preprocess_input
 }
     
 base_model_size = {
@@ -102,7 +104,8 @@ base_model_size = {
     "InceptionV3":(299, 299),
     "DenseNet201":(224, 224),
     "Resnet50":(224, 224),
-    "InceptionResNetV2":(299,299)
+    "InceptionResNetV2":(299,299),
+    "NASNetLarge":(224,224)
 }
 
 def get_basemodel(basename):
