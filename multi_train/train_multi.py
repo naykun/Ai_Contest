@@ -105,7 +105,7 @@ base_model_size = {
     "DenseNet201":(224, 224),
     "Resnet50":(224, 224),
     "InceptionResNetV2":(299,299),
-    "NASNetLarge":(224,224)
+    "NASNetLarge":(331,331)
 }
 
 def get_basemodel(basename):
