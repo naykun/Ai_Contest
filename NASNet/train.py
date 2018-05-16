@@ -302,7 +302,7 @@ def main():
 
     path = args.data
     ifshuffle={'train':True,'val':False}
-    data_image = {x:datasets.ImageFolder(root = os.path.join(path,x),
+    data_image = {x:datasets.ImageFolder(root = os.path.join(path,x+'_data'),
                                         transform = data_transform[x])
                 for x in ["train", "val"]}
 
