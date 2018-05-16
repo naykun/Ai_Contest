@@ -19,16 +19,16 @@ parser.add_argument('data', metavar='DIR',
 parser.add_argument('-j', '--workers', default=6, type=int, metavar='N',
                     help='number of data loading workers (default: 4)')
 
-parser.add_argument('--epochs', default=90, type=int, metavar='N',
+parser.add_argument('--epochs', default=30, type=int, metavar='N',
                     help='number of total epochs to run')
 
 parser.add_argument('--start-epoch', default=0, type=int, metavar='N',
                     help='manual epoch number (useful on restarts)')
 
-parser.add_argument('-b', '--batch-size', default=256, type=int,
+parser.add_argument('-b', '--batch-size', default=32, type=int,
                     metavar='N', help='mini-batch size (default: 256)')
 
-parser.add_argument('--lr', '--learning-rate', default=0.1, type=float,
+parser.add_argument('--lr', '--learning-rate', default=0.01, type=float,
                     metavar='LR', help='initial learning rate')
 
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
@@ -79,9 +79,9 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
     best_model = model  
   
     for epoch in range(args.start_epoch,args.epochs):  
-        print('Epoch {}/{}'.format(epoch, num_epochs - 1))  
+        print('Epoch {}/{}'.format(epoch, args.epochs- 1))  
         print('-' * 10)  
-  
+        data_time = AverageMeter()
         batch_time = AverageMeter()
         losses = AverageMeter()
         top1 = AverageMeter()
@@ -114,7 +114,7 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
   
                 # forward  
                 outputs = model(inputs)  
-                _, preds = torch.max(outputs.data, 1)  
+                # _, preds = torch.max(outputs.data, 1)  
                 loss = criterion(outputs, labels)  
 
                 # backward + optimize only if in training phase  
@@ -124,7 +124,7 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
   
                 # statistics
                 # measure accuracy and record loss  
-                prec1, prec5 = accuracy(output.data, target, topk=(1, 3))
+                prec1, prec5 = accuracy(outputs.data, labels, topk=(1, 3))
                 losses.update(loss.data[0], inputs.size(0))
                 top1.update(prec1[0], inputs.size(0))
                 top5.update(prec5[0], inputs.size(0))
@@ -134,19 +134,19 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
 
 
                 if i % args.print_freq == 0:
-                    print('{} Epoch: [{0}][{1}/{2}]\t'
+                    print('{0} Epoch: [{1}][{2}/{3}]\t'
                         'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                         'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
                         'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
                         'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
                         'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                        phase, epoch, i, len(train_loader), batch_time=batch_time,
+                        phase, epoch, i, len(data_loader_image[phase]), batch_time=batch_time,
                         data_time=data_time, loss=losses, top1=top1, top5=top5))
   
             
   
             print('{} * Prec@1 {top1.avg:.3f} Prec@5 {top5.avg:.3f} Loss {loss.val:.4f} ({loss.avg:.4f})'
-            .format(phrase,top1=top1, top5=top5,loss=losses)) 
+            .format(phase,top1=top1, top5=top5,loss=losses)) 
   
             # deep copy the model  
             if phase == 'val' and top1.avg > best_acc:  
@@ -285,7 +285,7 @@ def main():
 
     data_transforms = {  
         'train': transforms.Compose([  
-            transforms.RandomResizedCrop(224), #从原图像随机切割一张（224， 224）的图像
+            transforms.RandomResizedCrop(331), #从原图像随机切割一张（224， 224）的图像
             transforms.RandomHorizontalFlip(), #以0.5的概率水平翻转
             transforms.RandomVerticalFlip(), #以0.5的概率垂直翻转
             transforms.RandomRotation(10), #在（-10， 10）范围内旋转
@@ -295,7 +295,7 @@ def main():
         ]),  
         'val': transforms.Compose([  
             transforms.Scale(256),  
-            transforms.CenterCrop(224),  
+            transforms.CenterCrop(331),  
             transforms.ToTensor(),  
             normalize  
         ]),  
@@ -304,7 +304,7 @@ def main():
     path = args.data
     ifshuffle={'train':True,'val':False}
     data_image = {x:datasets.ImageFolder(root = os.path.join(path,x+'_data'),
-                                        transform = data_transform[x])
+                                        transform = data_transforms[x])
                 for x in ["train", "val"]}
 
     data_loader_image = {x:torch.utils.data.DataLoader(dataset=data_image[x],
@@ -320,10 +320,10 @@ def main():
     class_to_idx = data_image['train'].class_to_idx 
     idx_to_class = dict(zip(data_image['train'].class_to_idx.values(), data_image['train'].class_to_idx.keys()))
 
-
-    # define loss function (criterion) and pptimizer
+    # print(model)
+    # define loss function (criterion) and optimizer
     criterion = nn.CrossEntropyLoss().cuda()
-    optimizer = torch.optim.Adam(model.parameters(), args.lr,
+    optimizer = torch.optim.Adam(model.module.last_linear.parameters(), args.lr,
                                 weight_decay=args.weight_decay)
     # optim.SGD([
     #                 {'params': model.base.parameters()},
@@ -331,9 +331,9 @@ def main():
     #             ], lr=1e-2, momentum=0.9)
 
     if args.evaluate:
-        validate(val_loader, model, criterion)
+        validate(data_loader_image['val'], model, criterion)
         return
-    model = train_model(model,data_loader_image['train'], criterion, optimizer,exp_lr_scheduler)
+    model = train_model(model,data_loader_image, criterion, optimizer,exp_lr_scheduler)
     torch.save(model.state_dict(), "model_nasnetalarge_finetune.pkl")
 
 
