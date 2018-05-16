@@ -1,3 +1,4 @@
+import argparse
 import torch
 import torchvision
 from torchvision import datasets,transforms, models
@@ -133,14 +134,14 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
 
 
                 if i % args.print_freq == 0:
-                print('{} Epoch: [{0}][{1}/{2}]\t'
-                    'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
-                    'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
-                    'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
-                    'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
-                    phase, epoch, i, len(train_loader), batch_time=batch_time,
-                    data_time=data_time, loss=losses, top1=top1, top5=top5))
+                    print('{} Epoch: [{0}][{1}/{2}]\t'
+                        'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
+                        'Data {data_time.val:.3f} ({data_time.avg:.3f})\t'
+                        'Loss {loss.val:.4f} ({loss.avg:.4f})\t'
+                        'Prec@1 {top1.val:.3f} ({top1.avg:.3f})\t'
+                        'Prec@5 {top5.val:.3f} ({top5.avg:.3f})'.format(
+                        phase, epoch, i, len(train_loader), batch_time=batch_time,
+                        data_time=data_time, loss=losses, top1=top1, top5=top5))
   
             
   
@@ -246,7 +247,7 @@ def accuracy(output, target, topk=(1,)):
 def main():
     global args, best_acc
     args = parser.parse_args()
-    print args
+    print(args)
 
     # create model
     print("=> creating model")
