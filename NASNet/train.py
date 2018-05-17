@@ -9,6 +9,7 @@ import torch.nn.parallel
 import torch.backends.cudnn as cudnn
 from torch.autograd import Variable 
 import time
+import copy
 import pretrainedmodels
 
 parser = argparse.ArgumentParser(description='PyTorch Training')
@@ -73,7 +74,7 @@ def exp_lr_scheduler(optimizer, epoch,  lr_decay_epoch=7):
 
 def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):  
     
-    
+    global args, best_acc
     since = time.time()  
   
     best_model = model  
@@ -81,13 +82,13 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
     for epoch in range(args.start_epoch,args.epochs):  
         print('Epoch {}/{}'.format(epoch, args.epochs- 1))  
         print('-' * 10)  
-        data_time = AverageMeter()
-        batch_time = AverageMeter()
-        losses = AverageMeter()
-        top1 = AverageMeter()
-        top5 = AverageMeter()
         # Each epoch has a training and validation phase  
         for phase in ['train', 'val']:  
+            data_time = AverageMeter()
+            batch_time = AverageMeter()
+            losses = AverageMeter()
+            top1 = AverageMeter()
+            top5 = AverageMeter()
             if phase == 'train':  
                 optimizer = lr_scheduler(optimizer, epoch)  
                 model.train(True)  # Set model to training mode  
@@ -168,6 +169,7 @@ def train_model(model,data_loader_image, criterion, optimizer, lr_scheduler):
 
 
 def validate(val_loader, model, criterion):
+    global args, best_acc
     batch_time = AverageMeter()
     losses = AverageMeter()
     top1 = AverageMeter()
