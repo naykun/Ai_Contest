@@ -319,7 +319,7 @@ def main():
             normalize  
         ]),  
         'val': transforms.Compose([  
-            transforms.Scale(256),  
+            transforms.Scale(331),  
             transforms.CenterCrop(331),  
             transforms.ToTensor(),  
             normalize  
