@@ -105,7 +105,7 @@ if __name__=="__main__":
     if args.imagepath is not None and args.listfile is not None:
         preds,imgfiles = predict(model, args.listfile, args.imagepath)
         result = decode_predictions(preds)
-        with open("result_"+args.basename+'.csv','w') as fout:
+        with open("result_logits"+args.basename+'.csv','w') as fout:
             fout.write('FILE_ID,CATEGORY_ID0,CATEGORY_ID1,CATEGORY_ID2\n')
             for i,filename in enumerate(imgfiles):
                 fout.write(filename[:-1])
