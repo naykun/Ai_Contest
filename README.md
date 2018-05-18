@@ -5,6 +5,10 @@
 - cuda 9.0
 - cudnn 7.0
 - matplotlib
+- pytorch 0.4
+- torchvision
+- pretrainedmodels
+
 # 训练数据准备
 将datapre.py文件放置于如下结构中
 ```
