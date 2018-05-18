@@ -29,7 +29,7 @@ python3 datapre.py
 数据集将被自动切分为训练集(./train_data)和验证集(./val_data)两个部分
 
 # 训练模型
-
+我们使用keras和pytorch框架训练了若干个模型，对于抽象的train.py脚本来说
 执行命令：
 ```
 python3 train.py --train_dir {dir of train data} --val_dir {dir of validate data}
