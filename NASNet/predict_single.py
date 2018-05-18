@@ -5,8 +5,10 @@ from PIL import Image
 import requests
 from io import BytesIO
 from os.path import join
+import os
 
 import torch
+from torch.nn import functional as F
 import torch.nn as nn
 import torch.nn.parallel
 import torch.backends.cudnn as cudnn
@@ -14,6 +16,8 @@ from torch.autograd import Variable
 from torchvision import transforms, models
 import pretrainedmodels
 
+model_name = 'nasnetalarge'
+basename = 'NASNet'
 Class_Index = {
     0:'0',
     1:'1',
@@ -36,7 +40,7 @@ Class_Index = {
     18:'8',
     19:'9'
 }
-
+use_gpu = torch.cuda.is_available()
 def decode_predictions(preds, top=3):
     results = []
     for pred in preds:
@@ -72,14 +76,17 @@ def predict(model,listfilepath,imagepath):
                     imgfile = line[:-1] + '.jpg'
                     img_single = Image.open(imagepath+'/'+imgfile) 
                     img_single = img_single.convert('RGB')    
-                    inputs = preprocess_input(sim_single)      
+                    inputs = preprocess_input(img_single)      
                     if use_gpu:  
                         inputs = Variable(inputs.unsqueeze(0).cuda())
                     else:  
                         inputs = Variable(inputs.unsqueeze(0))
                     y = model(inputs)
-                    y = y.cpu()  
-                    y = y.data.numpy()
+                    y = y.cpu()
+                    y = F.softmax(y, 1).data.numpy()  
+                    # y = y.data.numpy()
+                    print(y)
+                    preds.append(y)
     Y = np.concatenate([x for x in preds])
     return Y,imgfiles
 
@@ -105,27 +112,27 @@ if __name__=="__main__":
         model = torch.nn.DataParallel(model).cuda()
     if os.path.isfile(args.model):
         print("=> loading checkpoint '{}'".format(args.model))
-        checkpoint = torch.load(args.resume)
+        checkpoint = torch.load(args.model)
         if type(checkpoint)==dict:
             model.load_state_dict(checkpoint['state_dict'])
         else:
             model.load_state_dict(checkpoint)
     else:
         print("=> no checkpoint found at '{}'".format(args.model))
-        return
+        exit()
     cudnn.benchmark = True
 
     if args.imagepath is not None and args.listfile is not None:
         preds,imgfiles = predict(model, args.listfile, args.imagepath)
         result = decode_predictions(preds)
-        with open("result_"+args.basename+'.csv','w') as fout:
+        with open("result_"+basename+'.csv','w') as fout:
             fout.write('FILE_ID,CATEGORY_ID0,CATEGORY_ID1,CATEGORY_ID2\n')
             for i,filename in enumerate(imgfiles):
                 fout.write(filename[:-1])
                 for ccls,score in result[i]:
                     fout.write(','+ccls)
                 fout.write('\n')
-        with open("result_logits_"+args.basename+'.csv','w') as fout:
+        with open("result_logits_"+basename+'.csv','w') as fout:
             fout.write('FILE_ID,CATEGORY_ID0,CATEGORY_ID1,CATEGORY_ID2\n')
             for i,filename in enumerate(imgfiles):
                 fout.write(filename[:-1])
